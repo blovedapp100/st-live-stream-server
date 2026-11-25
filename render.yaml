@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: live-stream-server
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: STREAM_MODE
+        value: multi
