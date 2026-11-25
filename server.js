@@ -7,6 +7,8 @@
  * the phone app or turning off the phone's internet does NOT stop it.
  *
  * Endpoints:
+ *   GET  /                      - home page
+ *   GET  /privacy               - privacy policy
  *   GET  /health                  - liveness check
  *   POST /api/jobs                - create + start a job (multipart upload OR JSON {videoUrl})
  *   GET  /api/jobs                - list jobs (stream keys NEVER included)
@@ -336,6 +338,62 @@ app.get('/health', (req, res) => {
   });
 });
 app.get('/api/health', (req, res) => res.redirect('/health'));
+
+// ------------------------------------------------------------------ pages --
+// Home page and privacy policy (plain HTML strings, no templates, no new
+// dependencies). These are exact-path routes, so they cannot shadow
+// /health or any /api/* route.
+const HOME_PAGE = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ST Live Stream</title>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:48px auto;padding:0 16px;line-height:1.6;color:#111}h1{font-size:28px}a{color:#0b5fff}</style>
+</head>
+<body>
+<h1>ST Live Stream</h1>
+<p>ST Live Stream lets you stream a video live to your channels, from your phone.</p>
+<p>Pick a video file or paste a video link in the ST Live Stream Android app, choose your destinations &mdash; YouTube, Facebook, Twitch, Kick, or a custom RTMP server &mdash; and this server re-streams it with FFmpeg.</p>
+<p>The stream keeps running on the server even if you close the phone app or the phone goes offline.</p>
+<p>Questions? Contact us at <a href="mailto:blovedapp100@gmail.com">blovedapp100@gmail.com</a>.</p>
+<p><a href="/privacy">Privacy Policy</a></p>
+</body>
+</html>`;
+
+const PRIVACY_PAGE = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy &mdash; ST Live Stream</title>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:48px auto;padding:0 16px;line-height:1.6;color:#111}h1{font-size:28px}a{color:#0b5fff}</style>
+</head>
+<body>
+<h1>Privacy Policy</h1>
+<p>Last updated: 25 November 2026</p>
+<p>ST Live Stream is an Android app with a small re-streaming server. This policy explains what data the app and the server handle.</p>
+<h2>Accounts and logins</h2>
+<p>If you sign in with Google, Facebook, or Twitch in the app, your login tokens stay encrypted on your phone. They are never sent to this server.</p>
+<h2>Stream keys</h2>
+<p>Your stream keys are stored encrypted on your phone. Only the RTMP stream key needed for a stream is sent to this server, and only to run that stream. On the server, stream keys are held only in memory for the running job. They are never logged, never written to disk, and never returned by any server endpoint.</p>
+<h2>Videos you stream</h2>
+<p>A video you upload is kept on the server only while its stream is running, and is deleted when the stream stops or finishes. A video link you paste is resolved to a stream and is not stored.</p>
+<h2>What we do not do</h2>
+<p>We do not sell or share your personal data with anyone. This website has no ads and no trackers, and there is no account or sign-up on this website.</p>
+<h2>Questions and deletion requests</h2>
+<p>If you have questions about this policy, or you want your data deleted, contact us at <a href="mailto:blovedapp100@gmail.com">blovedapp100@gmail.com</a>.</p>
+<p><a href="/">Back to home</a></p>
+</body>
+</html>`;
+
+app.get('/', (req, res) => {
+  res.type('html').send(HOME_PAGE);
+});
+
+app.get('/privacy', (req, res) => {
+  res.type('html').send(PRIVACY_PAGE);
+});
 
 function parseDestinations(body) {
   let dests = body.destinations;
